@@ -95,13 +95,13 @@ def RunSteppedElevation():
 	    try:
 
 		# Move Elevation servo from horizontal to vertical in steps
-		for i in range(0, 20):
-			val = EL_Min - (((EL_Min - EL_Mid)/90)*(i*5))
+		for i in range(1, 20):
+			val = 640 - (((650 - 380)/90)*(i*5))
 			pwm.set_pwm(EL, 0, val)
 			print("EL at %d" % val)
 			time.sleep(sDur)
 		for i in range(0, 19):
-			val = EL_Mid + (((EL_Min - EL_Mid)/90)*(i*5))
+			val = EL_Mid + (((650 - 380)/90)*(i*5))
 			pwm.set_pwm(EL, 0, val)
 			print("EL at %d" % val)
 			time.sleep(sDur)
@@ -109,16 +109,57 @@ def RunSteppedElevation():
 		# Center both servos and exit
 		print("AZ MID")
     		pwm.set_pwm(AZ, 0, AZ_Mid)
+		print("AZ MAX")
+    		pwm.set_pwm(EL, 0, EL_Max)
+		time.sleep(1)
 		print("AZ MID")
     		pwm.set_pwm(EL, 0, EL_Mid)
 		sys.exit(0)
 
 
 
+def RunSteppedAzimuth():
+	sDur=0.05
+	# Run stepped-azimuth test
+
+	pwm.set_pwm(AZ, 0, AZ_Mid)
+	time.sleep(2)
+	pwm.set_pwm(EL, 0, EL_Min)
+	print("EL at %d" % EL_Min)
+	time.sleep(2)
+
+	while True:
+
+	    try:
+
+		# Move Azimuth servo from "west" to "east" in steps
+		for i in range(0, 80):
+			val = 640 - int(((640 - 75)/180)*(i*2.5))
+			pwm.set_pwm(AZ, 0, val)
+			print("AZ at %d" % val)
+			time.sleep(sDur)
+		for i in range(0, 76):
+			val = AZ_Max + int(((640 - 75)/180)*(i*2.5))
+			pwm.set_pwm(AZ, 0, val)
+			print("AZ at %d" % val)
+			time.sleep(sDur)
+	    except KeyboardInterrupt:
+		# Center both servos and exit
+		print("AZ MID")
+    		pwm.set_pwm(AZ, 0, AZ_Mid)
+		print("AZ MAX")
+    		pwm.set_pwm(EL, 0, EL_Max)
+		time.sleep(1)
+		print("AZ MID")
+    		pwm.set_pwm(EL, 0, EL_Mid)
+		sys.exit(0)
+
 
 # Set frequency to 60hz, good for servos.
 pwm.set_pwm_freq(60)
 
-RunFullMotion()
+##RunFullMotion()
 
 ##RunSteppedElevation()
+
+RunSteppedAzimuth()
