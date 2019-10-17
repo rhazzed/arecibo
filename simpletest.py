@@ -13,7 +13,9 @@ import Adafruit_PCA9685 as PWM
 ## import CHIP_IO.GPIO as GPIO
 
 #set PWM Controller channels
+#left & right
 PWM_CH_FNB = 0
+#up & down
 PWM_CH_FNA = 1
 PWM_CH_SERVO = 15
 
@@ -28,7 +30,7 @@ pwm = PWM.PCA9685(address=0x40, busnum=1)
 
 # Configure min and max servo pulse lengths
 servo_min = 300  # Min pulse length out of 4096
-servo_max = 500  # Max pulse length out of 4096 (600 torqued one servo too much)
+servo_max = 450  # Max pulse length out of 4096 (600 torqued one servo too much)
 
 # Helper function to make setting a servo pulse width simpler.
 def set_servo_pulse(channel, pulse):
@@ -56,9 +58,9 @@ try:
     pwm.set_pwm(PWM_CH_FNA, 0, servo_min)
     time.sleep(1)
 
-    print('ULTRASONIC RANGE SENSOR SERVO MIN...')
-    pwm.set_pwm(PWM_CH_SERVO, 0, servo_min)
-    time.sleep(1)
+#    print('ULTRASONIC RANGE SENSOR SERVO MIN...')
+#    pwm.set_pwm(PWM_CH_SERVO, 0, servo_min)
+#    time.sleep(1)
 
     print('FNB MAX...')
     pwm.set_pwm(PWM_CH_FNB, 0, servo_max)
@@ -68,9 +70,9 @@ try:
     pwm.set_pwm(PWM_CH_FNA, 0, servo_max)
     time.sleep(1)
 
-    print('ULTRASONIC RANGE SENSOR SERVO MAX...')
-    pwm.set_pwm(PWM_CH_SERVO, 0, servo_max)
-    time.sleep(1)
+#    print('ULTRASONIC RANGE SENSOR SERVO MAX...')
+#    pwm.set_pwm(PWM_CH_SERVO, 0, servo_max)
+#    time.sleep(1)
 
 except KeyboardInterrupt:
   print("Stopped by User")
