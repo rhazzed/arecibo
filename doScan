@@ -1,0 +1,106 @@
+#!/bin/sh
+##############################################
+# doScan - Scan WiFi channels
+##############################################
+
+#wifiIfName="wlp0s20u3u4"
+#wifiIfName="wlp0s20u14"
+#wifiIfName="wlp0s20u3u4"
+#wifiIfName="wlp0s20u1"
+
+#wifiIfName=wlan0
+## wifiIfName=`iwconfig 2>&1 | grep wlan | grep "IEEE 802.11" | grep "ESSID:off.any" | head -1 | awk '{ print $1 }'`
+#wifiIfName=`iwconfig 2>&1 | grep "IEEE 802.11" | grep "ESSID:off.any" | head -1 | awk '{ print $1 }'`
+wifiIfName=`iwconfig 2>&1 | grep "IEEE 802.11" | grep "ESSID:off.any" | tail -1 | awk '{ print $1 }'`
+
+if [ -n ""$wifiIfName"" ]
+then
+	echo
+	# So far, mon0 always winds up being the interface name + "mon" tacked on the end
+	mon0="${wifiIfName}mon"
+	echo "Using adapters ${wifiIfName} and ${mon0}..."
+else
+	echo
+	echo "NO suitable (and/or unassociated) WiFi adapter found."
+	echo "Exiting."
+	echo
+	exit 2
+fi
+
+
+
+
+shutdown()
+{
+	killall rotateFreqs
+	airmon-ng stop $mon0
+	# NOTE: The above command terminates all processes (tcpdump, etc) using the $mon0 interface,
+	#       so no need to kill them "individually" once the above command is issued.
+	ifconfig $wifiIfName up
+}
+
+trap "shutdown;exit 0" 0 1 2 3 6 12 15
+
+
+airmon-ng start ${wifiIfName}
+
+ifconfig $mon0 promisc
+dumpcap -I -c 4 -i $mon0
+./rotateFreqs $mon0 2>/dev/null &
+
+# NEW 2018-02-14 -
+sleep 5
+tcpdump -i $mon0 -w /tt/scan.$$.pcap &
+sleep 5
+
+tcpdump -i $mon0 -e -s 256 type mgt subtype probe-resp or subtype probe-req | awk '{
+
+
+if ((NF > 22) && ($17 == "Request")) {
+	printf("%s,%s %s,%s,,%s,", $1,$4,$5,$7,$13);
+	for (i=18;i <= NF;i++) {
+		printf("%s",$i)
+		if ($i~/)$/) break;
+		else printf(" ")
+	}
+	printf("\n");
+};
+if ((NF > 22) && ($21 == "Response")) {
+	printf("%s,%s %s,%s,%s,%s,",$1,$4,$5,$7,$11,$14);
+	for (i=22;i <= NF;i++) {
+		printf("%s",$i)
+		if ($i~/)$/) break;
+		else printf(" ")
+	}
+	printf("\n");
+};
+
+}'
+
+exit 0
+
+
+   $1           $2  $3    $4  $5   $6  $7    $8      $9   $10      $11          $12         $13               
+23:25:58.487281 1.0 Mb/s 2432 MHz 11b -88dB signal antenna 1 BSSID:Broadcast DA:Broadcast SA:00:1e:8f:60:58:d5
+ $14   $15     $16    $17     $18
+(oui Unknown) Probe Request (KPQT2) [1.0 2.0 5.5 11.0 6.0 9.0 12.0 18.0 Mbit]
+
+
+
+   $1           $2  $3    $4  $5   $6  $7    $8      $9   $10       $11              $12   $13      $14
+23:25:57.785455 6.0 Mb/s 5765 MHz 11a -84dB signal antenna 1 BSSID:b0:7f:b9:96:53:40 (oui Unknown) DA:54:60:09:98:03:62
+ $15  $16        $17                $18   $19     $20    $21        $22-$(22+x)
+(oui Unknown) SA:b0:7f:b9:96:53:40 (oui Unknown) Probe Response (MySpectrumWiFi42-5G) [6.0* 9.0 12.0* 18.0 24.0* 36.0 48.0 54.0 Mbit], PRIVACY[|802.11]
+
+
+   $1           $2  $3    $4  $5   $6  $7    $8      $9   $10       $11              $12   $13      $14
+23:26:00.172137 1.0 Mb/s 2412 MHz 11b -88dB signal antenna 1 BSSID:dc:ef:09:e3:3e:95 (oui Unknown) DA:f8:04:2e:3f:69:77
+ $15  $16        $17                $18   $19     $20    $21      $22-$(22+x)
+(oui Unknown) SA:dc:ef:09:e3:3e:95 (oui Unknown) Probe Response (NETGEAR44) [1.0* 2.0* 5.5* 11.0* 6.0 9.0 12.0 18.0 Mbit] CH: 1, PRIVACY[|802.11]
+
+
+   $1           $2  $3    $4  $5   $6  $7    $8      $9   $10       $11              $12   $13      $14
+23:26:02.858974 1.0 Mb/s 2462 MHz 11b -76dB signal antenna 1 BSSID:b0:05:94:76:0e:71 (oui Unknown) DA:f8:04:2e:de:c1:f1
+ $15  $16        $17                $18   $19     $20    $21        $22-$(22+x)
+(oui Unknown) SA:b0:05:94:76:0e:71 (oui Unknown) Probe Response (PS4-16B523BF60B9) [1.0* 2.0* 5.5* 11.0* 6.0 9.0 12.0 18.0 Mbit] CH: 11, PRIVACY
+

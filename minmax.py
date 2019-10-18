@@ -119,7 +119,8 @@ def RunSteppedElevation():
 
 
 def RunSteppedAzimuth():
-	sDur=0.05
+	##sDur=0.05
+	sDur=0.5	# Allow time to scan the frequency
 	# Run stepped-azimuth test
 
 	pwm.set_pwm(AZ, 0, AZ_Mid)

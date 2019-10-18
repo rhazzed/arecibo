@@ -1,0 +1,64 @@
+#!/bin/sh
+##############################################
+# doMonitor - Monitor one specific WiFi channel
+##############################################
+
+#wifiIfName="wlp0s20u3u4"
+#wifiIfName="wlp0s20u14"
+#wifiIfName="wlp0s20u3u4"
+#wifiIfName="wlp0s20u1"
+
+#wifiIfName=wlan0
+## wifiIfName=`iwconfig 2>&1 | grep wlan | grep "IEEE 802.11" | grep "ESSID:off.any" | head -1 | awk '{ print $1 }'`
+#wifiIfName=`iwconfig 2>&1 | grep "IEEE 802.11" | grep "ESSID:off.any" | head -1 | awk '{ print $1 }'`
+wifiIfName=`iwconfig 2>&1 | grep "IEEE 802.11" | grep "ESSID:off.any" | tail -1 | awk '{ print $1 }'`
+
+
+# Hard-code the 5G channel to go to (FOR NOW!)
+channel=157
+
+
+
+if [ -n ""$wifiIfName"" ]
+then
+	echo
+	# So far, mon0 always winds up being the interface name + "mon" tacked on the end
+	mon0="${wifiIfName}mon"
+	echo "Using adapters ${wifiIfName} and ${mon0}..."
+else
+	echo
+	echo "NO suitable (and/or unassociated) WiFi adapter found."
+	echo "Exiting."
+	echo
+	exit 2
+fi
+
+
+
+
+shutdown()
+{
+	##killall rotateFreqs
+	airmon-ng stop $mon0
+	# NOTE: The above command terminates all processes (tcpdump, etc) using the $mon0 interface,
+	#       so no need to kill them "individually" once the above command is issued.
+	ifconfig $wifiIfName up
+}
+
+trap "shutdown;exit 0" 0 1 2 3 6 12 15
+
+
+airmon-ng start ${wifiIfName}
+
+ifconfig $mon0 promisc
+dumpcap -I -c 4 -i $mon0
+##./rotateFreqs $mon0 2>/dev/null &
+iwconfig ${mon0} channel $channel
+
+# NEW 2018-02-14 -
+sleep 5
+tcpdump -i $mon0 -w /tt/scan.$$.pcap &
+sleep 5
+
+tcpdump -i $mon0 -e --immediate-mode "ether host fc:ec:da:f5:12:40" | awk '{ print $7 }'
+
