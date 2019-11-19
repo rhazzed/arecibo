@@ -1,3 +1,11 @@
+###########################
+# goto.py - Slew the pan/tilt adapter to the given azimuth/elevation pairing specified by the command line
+#
+# HISTORICAL INFORMATION -
+#
+#  2019-11-18  msipin  Created from minmax.py
+###########################
+
 import time
 import sys
 
@@ -27,6 +35,9 @@ AZ_Min = 640  # 270 degrees ("artificial West")
 AZ_Mid = 350  # 0 degrees ("artificial North")
 AZ_Max =  75  # 90 degrees ("artificial East")
 
+PWMs_PER_DEG_AZ = abs(AZ_Min - AZ_Max)/180.0
+
+
 # Configure ELEVATION servo
 EL=1
 # ERIC's VALUES -
@@ -38,6 +49,9 @@ EL=1
 EL_Min = 482  # 0 degrees (pointing horizontally)
 EL_Mid = 259  # 90 degrees (pointing vertically)
 EL_Max = 105  # "beyond-vertically" (pointing > 95 degrees, or "wrapping around" behind us))
+
+PWMs_PER_DEG_EL = abs(EL_Min - EL_Mid)/90.0
+
 
 # Helper function to make setting a servo pulse width simpler.
 def set_servo_pulse(channel, pulse):
@@ -51,31 +65,39 @@ def set_servo_pulse(channel, pulse):
     pwm.set_pwm(channel, 0, pulse)
 
 
-
-def RunFullEL():
-	# Run full-range of ELEVATION test
+# Move ELEVATION servo to the given location (0 is EL_Min, 90 is EL_Mid)
+def gotoEL(el_deg):
 	sDur=3
 
-	# Center AZ, Center EL
-	pwm.set_pwm(AZ, 0, AZ_Mid)
-	time.sleep(sDur)
-	pwm.set_pwm(EL, 0, EL_Mid)
-	time.sleep(sDur)
+	# Constrain input to 0 <= x <= 90
+	if (el_deg < 0):
+		el_deg = 0
+	if (el_deg > 90):
+		el_deg = 90
 
-	while True:
+	try:
+		# Move ELEVATION servo to the given location
+		print("Moving EL to: %d" % el_deg)
+		loc = el_deg		# Don't need an offset
+		if (EL_Min > EL_Mid):
+			# Subtract from EL_Min
+			new_loc = int(EL_Min - (loc * PWMs_PER_DEG_EL))
+			# Don't let new setting go below EL_Mid
+			if (new_loc < EL_Mid):
+				new_loc = EL_Mid
+		else:
+			# Add to EL_Min
+			new_loc = int(EL_Min + (loc * PWMs_PER_DEG_EL))
+			# Don't let new setting go above EL_Mid
+			if (new_loc > EL_Mid):
+				new_loc = EL_Mid
 
-	    try:
-		print("EL MIN")
-		pwm.set_pwm(EL, 0, EL_Min)
+		print("Setting PWM to: %d\n" % new_loc)
+		pwm.set_pwm(EL, 0, new_loc)
 		time.sleep(sDur)
-		print("EL MAX")
-		pwm.set_pwm(EL, 0, EL_Max)
-		time.sleep(sDur)
 
-	    except KeyboardInterrupt:
-		# Center both servos and exit
-		print("AZ MID")
-    		pwm.set_pwm(AZ, 0, AZ_Mid)
+	except KeyboardInterrupt:
+		# Center ELEVATION and exit
 		print("EL MID")
     		pwm.set_pwm(EL, 0, EL_Mid)
 		sys.exit(0)
@@ -83,75 +105,44 @@ def RunFullEL():
 
 
 
-
-def RunFullAZ():
-	# Run full-range of AZIMUTH test
+# Move AZIMUTH servo to the given location (-90 is "West", 0 is "North", +90 is "East")
+def gotoAZ(az_deg):
 	sDur=3
 
-	# Center AZ, Center EL
-	pwm.set_pwm(AZ, 0, AZ_Mid)
-	time.sleep(sDur)
-	pwm.set_pwm(EL, 0, EL_Mid)
-	time.sleep(sDur)
+	# Constrain input to -90 <= x <= +90
+	if (az_deg < -90):
+		az_deg = -90
+	if (az_deg > 90):
+		az_deg = 90
 
-	while True:
+	try:
+		# Move AZIMUTH servo to the given location
+		print("Moving AZ to: %d" % az_deg)
+		loc = az_deg + 90	# Offset input value where 0 = West, 90 = North, 180 = East
+		if (AZ_Min > AZ_Max):
+			# Subtract from AZ_Min
+			new_loc = int(AZ_Min - (loc * PWMs_PER_DEG_AZ))
+			# Don't let new setting go below AZ_Max
+			if (new_loc < AZ_Max):
+				new_loc = AZ_Max
+		else:
+			# Add to AZ_Min
+			new_loc = int(AZ_Min + (loc * PWMs_PER_DEG_AZ))
+			# Don't let new setting go above AZ_Max
+			if (new_loc > AZ_Max):
+				new_loc = AZ_Max
 
-	    try:
-
-		# Move AZIMUTH servo between extremes.
-		print("AZ MIN")
-		pwm.set_pwm(AZ, 0, AZ_Min)
+		print("Setting PWM to: %d\n" % new_loc)
+		pwm.set_pwm(AZ, 0, new_loc)
 		time.sleep(sDur)
-		print("AZ MAX")
-		pwm.set_pwm(AZ, 0, AZ_Max)
-		time.sleep(sDur)
 
-	    except KeyboardInterrupt:
-		# Center both servos and exit
+	except KeyboardInterrupt:
+		# Center AZIMUTH and exit
 		print("AZ MID")
     		pwm.set_pwm(AZ, 0, AZ_Mid)
-		print("EL MID")
-    		pwm.set_pwm(EL, 0, EL_Mid)
 		sys.exit(0)
 
 
-def RunFullMotion():
-	# Run full-range of motion test
-	sDur=3
-	while True:
-
-	    try:
-		pwm.set_pwm(AZ, 0, AZ_Mid)
-		time.sleep(sDur)
-		pwm.set_pwm(EL, 0, EL_Min)
-		time.sleep(sDur)
-
-		# Move servo on channel O between extremes.
-		print("AZ MIN")
-		pwm.set_pwm(AZ, 0, AZ_Min)
-		time.sleep(sDur)
-		print("AZ MAX")
-		pwm.set_pwm(AZ, 0, AZ_Max)
-		time.sleep(sDur)
-		print("AZ MID")
-		pwm.set_pwm(AZ, 0, AZ_Mid)
-		time.sleep(sDur)
-		print("EL MIN")
-		pwm.set_pwm(EL, 0, EL_Min)
-		time.sleep(sDur)
-		print("EL MAX")
-		pwm.set_pwm(EL, 0, EL_Max)
-		time.sleep(sDur)
-		print("EL MID")
-		pwm.set_pwm(EL, 0, EL_Mid)
-		time.sleep(sDur)
-	    except KeyboardInterrupt:
-		# Center both servos and exit
-		print("AZ MID")
-    		pwm.set_pwm(AZ, 0, AZ_Mid)
-		print("EL MID")
-    		pwm.set_pwm(EL, 0, EL_Mid)
-		sys.exit(0)
 
 
 
@@ -193,42 +184,51 @@ def RunSteppedElevation():
 
 
 
-def RunSteppedAzimuth():
-	##sDur=0.05
-	sDur=0.5	# Allow time to scan the frequency
-	# Run stepped-azimuth test
+def RunGotoAz():
+	# Go to -90 azimuth
+	gotoAZ(-90)
 
-	pwm.set_pwm(AZ, 0, AZ_Mid)
-	time.sleep(2)
-	pwm.set_pwm(EL, 0, EL_Min)
-	print("EL at %d" % EL_Min)
-	time.sleep(2)
+	# Go to -45 azimuth
+	gotoAZ(-45)
 
-	while True:
+	# Go to 0 azimuth
+	gotoAZ(0)
 
-	    try:
+	# Go to +45 azimuth
+	gotoAZ(45)
 
-		# Move Azimuth servo from "west" to "east" in steps
-		for i in range(0, 80):
-			val = AZ_Min - int(((AZ_Min - AZ_Max)/180)*(i*2.5))
-			pwm.set_pwm(AZ, 0, val)
-			print("AZ at %d" % val)
-			time.sleep(sDur)
-		for i in range(0, 76):
-			val = AZ_Max + int(((AZ_Min - AZ_Max)/180)*(i*2.5))
-			pwm.set_pwm(AZ, 0, val)
-			print("AZ at %d" % val)
-			time.sleep(sDur)
-	    except KeyboardInterrupt:
-		# Center both servos and exit
-		print("AZ MID")
-    		pwm.set_pwm(AZ, 0, AZ_Mid)
-		print("EL MAX")
-    		pwm.set_pwm(EL, 0, EL_Max)
-		time.sleep(1)
-		print("EL MID")
-    		pwm.set_pwm(EL, 0, EL_Mid)
-		sys.exit(0)
+	# Go to +90 azimuth
+	gotoAZ(90)
+
+	# Got to AZ_Mid
+	gotoAZ(0)
+
+
+
+def RunGotoEl():
+
+	# Go to 0 Elevation
+	gotoEL(0)
+
+	# Go to 15 Elevation
+	gotoEL(15)
+
+	# Go to 30 Elevation
+	gotoEL(30)
+
+	# Go to 45 Elevation
+	gotoEL(45)
+
+	# Go to 60 Elevation
+	gotoEL(60)
+
+	# Go to 75 Elevation
+	gotoEL(75)
+
+	# Go to 90 Elevation
+	gotoEL(90)
+
+
 
 
 # Set frequency to 60hz, good for servos.
@@ -238,8 +238,13 @@ pwm.set_pwm_freq(60)
 
 ##RunFullEL()
 
-RunFullMotion()
+##RunFullMotion()
 
 ##RunSteppedElevation()
 
 ##RunSteppedAzimuth()
+
+##RunGotoAz()
+
+RunGotoEl()
+
