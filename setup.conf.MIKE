@@ -1,0 +1,24 @@
+###################
+# setup.conf - Configure for your individual setup
+###################
+
+[panTiltServos]
+# MIKE's VALUES -
+# AZIMUTH servo number
+az = 0
+# 270 degrees ("artificial West")
+az_min = 640
+# 0 degrees ("artificial North")
+az_mid = 350
+# 90 degrees ("artificial East")
+az_max =  75
+
+# ELEVATION servo number
+el = 1
+# 0 degrees (pointing horizontally)
+el_min = 482
+# 90 degrees (pointing vertically)
+el_mid = 259
+# "beyond-vertically" (pointing > 95 degrees, or "wrapping around" behind us))
+el_max = 105
+

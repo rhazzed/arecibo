@@ -17,38 +17,43 @@ import Adafruit_PCA9685
 #import logging
 #logging.basicConfig(level=logging.DEBUG)
 
+try:
+    import configparser
+except ImportError:
+    print("\nERROR: Can't find 'configparser'.  Try performing 'sudo pip install ConfigParser'\n")
+    sys.exit(-1)
+
+
+
+
 # Initialise the PCA9685 using the default address (0x40).
 pwm = Adafruit_PCA9685.PCA9685()
 
 # Alternatively specify a different address and/or bus:
 #pwm = Adafruit_PCA9685.PCA9685(address=0x41, busnum=2)
 
-# Configure AZIMUTH servo
-AZ=0
-# ERIC's VALUES -
-#	AZ_Min = 640  # 270 degrees ("artificial West")
-#	AZ_Mid = 350  # 0 degrees ("artificial North")
-#	AZ_Max =  75  # 90 degrees ("artificial East")
 
-# MIKE's VALUES -
-AZ_Min = 640  # 270 degrees ("artificial West")
-AZ_Mid = 350  # 0 degrees ("artificial North")
-AZ_Max =  75  # 90 degrees ("artificial East")
+
+## setup.conf contents -
+## [pan_tilt_servos]
+## name1 = value1
+Config = configparser.ConfigParser()
+Config.read("setup.conf")
+
+section="panTiltServos"
+
+AZ = int(Config.get(section, 'az'))
+AZ_Min = int(Config.get(section, 'az_min'))
+AZ_Mid = int(Config.get(section, 'az_mid'))
+AZ_Max = int(Config.get(section, 'az_max'))
+
+EL = int(Config.get(section, 'el'))
+EL_Min = int(Config.get(section, 'el_min'))
+EL_Mid = int(Config.get(section, 'el_mid'))
+EL_Max = int(Config.get(section, 'el_max'))
+
 
 PWMs_PER_DEG_AZ = abs(AZ_Min - AZ_Max)/180.0
-
-
-# Configure ELEVATION servo
-EL=1
-# ERIC's VALUES -
-#	EL_Min = 650  # 0 degrees (pointing horizontally)
-#	EL_Mid = 375  # 90 degrees (pointing vertically)
-#	EL_Max = 190  # "beyond-vertically" (pointing > 95 degrees, or "wrapping around" behind us))
-
-# MIKE's VALUES -
-EL_Min = 482  # 0 degrees (pointing horizontally)
-EL_Mid = 259  # 90 degrees (pointing vertically)
-EL_Max = 105  # "beyond-vertically" (pointing > 95 degrees, or "wrapping around" behind us))
 
 PWMs_PER_DEG_EL = abs(EL_Min - EL_Mid)/90.0
 
@@ -65,9 +70,10 @@ def set_servo_pulse(channel, pulse):
     pwm.set_pwm(channel, 0, pulse)
 
 
+
+
 # Move ELEVATION servo to the given location (0 is EL_Min, 90 is EL_Mid)
 def gotoEL(el_deg):
-	sDur=3
 
 	# Constrain input to 0 <= x <= 90
 	if (el_deg < 0):
@@ -94,7 +100,6 @@ def gotoEL(el_deg):
 
 		print("Setting PWM to: %d\n" % new_loc)
 		pwm.set_pwm(EL, 0, new_loc)
-		time.sleep(sDur)
 
 	except KeyboardInterrupt:
 		# Center ELEVATION and exit
@@ -107,7 +112,6 @@ def gotoEL(el_deg):
 
 # Move AZIMUTH servo to the given location (-90 is "West", 0 is "North", +90 is "East")
 def gotoAZ(az_deg):
-	sDur=3
 
 	# Constrain input to -90 <= x <= +90
 	if (az_deg < -90):
@@ -134,7 +138,6 @@ def gotoAZ(az_deg):
 
 		print("Setting PWM to: %d\n" % new_loc)
 		pwm.set_pwm(AZ, 0, new_loc)
-		time.sleep(sDur)
 
 	except KeyboardInterrupt:
 		# Center AZIMUTH and exit
@@ -185,48 +188,95 @@ def RunSteppedElevation():
 
 
 def RunGotoAz():
+	sDur=0.2
+
 	# Go to -90 azimuth
 	gotoAZ(-90)
+	time.sleep(sDur)
 
 	# Go to -45 azimuth
 	gotoAZ(-45)
+	time.sleep(sDur)
 
 	# Go to 0 azimuth
 	gotoAZ(0)
+	time.sleep(sDur)
 
 	# Go to +45 azimuth
 	gotoAZ(45)
+	time.sleep(sDur)
 
 	# Go to +90 azimuth
 	gotoAZ(90)
+	time.sleep(sDur)
 
 	# Got to AZ_Mid
 	gotoAZ(0)
+	time.sleep(sDur)
 
 
 
 def RunGotoEl():
+	sDur=0.1
 
 	# Go to 0 Elevation
 	gotoEL(0)
+	time.sleep(sDur)
 
 	# Go to 15 Elevation
 	gotoEL(15)
+	time.sleep(sDur)
 
 	# Go to 30 Elevation
 	gotoEL(30)
+	time.sleep(sDur)
 
 	# Go to 45 Elevation
 	gotoEL(45)
+	time.sleep(sDur)
 
 	# Go to 60 Elevation
 	gotoEL(60)
+	time.sleep(sDur)
 
 	# Go to 75 Elevation
 	gotoEL(75)
+	time.sleep(sDur)
 
 	# Go to 90 Elevation
 	gotoEL(90)
+	time.sleep(sDur)
+
+
+
+
+def RunDiagonal():
+    sDur=0.020
+    az=0
+    el=90
+    stepDeg=-0.5
+
+    gotoAZ(az)
+    gotoEL(el)
+    time.sleep(2)
+
+    try:
+
+	for i in range(0,int(90/abs(stepDeg))):
+		gotoAZ(az + (i * stepDeg))
+		gotoEL(el + (i * stepDeg))
+		time.sleep(sDur)
+
+	RunGotoEl()
+	RunGotoAz()
+
+    except KeyboardInterrupt:
+	# Center both servos and exit
+	print("AZ MID")
+	pwm.set_pwm(AZ, 0, AZ_Mid)
+	print("EL MID")
+	pwm.set_pwm(EL, 0, EL_Mid)
+	sys.exit(0)
 
 
 
@@ -246,5 +296,6 @@ pwm.set_pwm_freq(60)
 
 ##RunGotoAz()
 
-RunGotoEl()
+##RunGotoEl()
 
+RunDiagonal()
