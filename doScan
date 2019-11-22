@@ -59,18 +59,18 @@ tcpdump -i $mon0 -e -s 256 type mgt subtype probe-resp or subtype probe-req | aw
 if ((NF > 22) && ($17 == "Request")) {
 	printf("%s,%s %s,%s,,%s,", $1,$4,$5,$7,$13);
 	for (i=18;i <= NF;i++) {
-		printf("%s ",$i)
-		#if ($i~/)$/) break;
-		#else printf(" ")
+		printf("%s",$i)
+		if ($i ~/\)$/) break;
+		else printf(" ")
 	}
 	printf("\n");
 };
 if ((NF > 22) && ($21 == "Response")) {
 	printf("%s,%s %s,%s,%s,%s,",$1,$4,$5,$7,$11,$14);
 	for (i=22;i <= NF;i++) {
-		printf("%s ",$i)
-		#if ($i~/)$/) break;
-		#else printf(" ")
+		printf("%s",$i)
+		if ($i ~/\)$/) break;
+		else printf(" ")
 	}
 	printf("\n");
 };
