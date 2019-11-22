@@ -56,20 +56,66 @@ sleep 5
 tcpdump -i $mon0 -e -s 256 type mgt subtype probe-resp or subtype probe-req | awk '{
 
 
+##printf("\nDEBUG: [[%s]]\n",$0);
+
 if ((NF > 22) && ($17 == "Request")) {
-	printf("%s,%s %s,%s,,%s,", $1,$4,$5,$7,$13);
+
+	CH=$4" "$5
+	# 2.4 GHz -
+	if ($4 == "2412") CH="CH 1"
+	if ($4 == "2417") CH="CH 2"
+	if ($4 == "2422") CH="CH 3"
+	if ($4 == "2427") CH="CH 4"
+	if ($4 == "2432") CH="CH 5"
+	if ($4 == "2437") CH="CH 6"
+	if ($4 == "2442") CH="CH 7"
+	if ($4 == "2447") CH="CH 8"
+	if ($4 == "2452") CH="CH 9"
+	if ($4 == "2457") CH="CH 10"
+	if ($4 == "2462") CH="CH 11"
+
+	# 5 GHz -
+	if ($4 == "5180") CH="CH 36"
+	if ($4 == "5190") CH="CH 38"
+	if ($4 == "5200") CH="CH 40"
+	if ($4 == "5210") CH="CH 42"
+	if ($4 == "5220") CH="CH 44"
+	if ($4 == "5230") CH="CH 46"
+	if ($4 == "5240") CH="CH 48"
+	if ($4 == "5745") CH="CH 149"
+	if ($4 == "5755") CH="CH 151"
+	if ($4 == "5765") CH="CH 153"
+	if ($4 == "5775") CH="CH 155"
+	if ($4 == "5785") CH="CH 157"
+	if ($4 == "5795") CH="CH 159"
+	if ($4 == "5805") CH="CH 161"
+	if ($4 == "5825") CH="CH 165"
+
+	printf("%s,%s,%s,,%s,", $1,CH,$7,$13);
 	for (i=18;i <= NF;i++) {
 		printf("%s",$i)
-		if ($i ~/\)$/) break;
+		if ($i ~/\)$/) {
+			## Walk remaining fields looking for "CH:", then print the following field and break
+			#for(;i <= NF; i++) {
+			#	if (($i == "CH:") && (i < NF)) printf(" %s %s",$i,$(i+1))
+			#}
+			break;
+		}
 		else printf(" ")
 	}
 	printf("\n");
 };
 if ((NF > 22) && ($21 == "Response")) {
-	printf("%s,%s %s,%s,%s,%s,",$1,$4,$5,$7,$11,$14);
+	printf("%s,%s,%s,%s,%s,",$1,CH,$7,$11,$14);
 	for (i=22;i <= NF;i++) {
 		printf("%s",$i)
-		if ($i ~/\)$/) break;
+		if ($i ~/\)$/) {
+			## Walk remaining fields looking for "CH:", then print the following field and break
+			#for(;i <= NF; i++) {
+			#	if (($i == "CH:") && (i < NF)) printf(" %s %s",$i,$(i+1))
+			#}
+			break;
+		}
 		else printf(" ")
 	}
 	printf("\n");
