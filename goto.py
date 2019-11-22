@@ -254,7 +254,7 @@ def RunDiagonal():
     sDur=0.020
     az=0
     el=90
-    stepDeg=-0.5
+    stepDeg=-0.25
 
     gotoAZ(az)
     gotoEL(el)
@@ -298,4 +298,18 @@ pwm.set_pwm_freq(60)
 
 ##RunGotoEl()
 
-RunDiagonal()
+##RunDiagonal()
+
+print("Number of arguments: %d\n" % len(sys.argv))
+
+if len(sys.argv) >= 3:
+	# Pickup the first argument as AZIMUTH
+	az=int(sys.argv[1])
+	gotoAZ(az)
+
+	# Pickup the second argument as ELEVATION
+	el=int(sys.argv[2])
+	gotoEL(el)
+
+# Exit with the pan/tilt in the specified location
+
