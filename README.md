@@ -10,6 +10,7 @@ Install all of the following dependencies onto your Raspberry Pi -
     sudo apt-get install wireshark (this one is optional)
 
 Clone this github repository (arecibo) -
+
     git clone https://github.com/rhazzed/arecibo
 
 Add a Panda 2.4/5 GHz WiFi adapter to your Pi
