@@ -1,6 +1,11 @@
 #!/bin/sh
 ##############################################
 # doit - A test to combine WiFi sniffing and pan/tilt movement
+#
+# HISTORICAL INFORMATION -
+#
+#  2019-11-26  msipin  Added stop-count on tcpdump, and post-processing of
+#                      WiFi scanning results
 ##############################################
 
 wifiIfName=`iwconfig 2>&1 | grep "IEEE 802.11" | grep "ESSID:off.any" | tail -1 | awk '{ print $1 }'`
@@ -31,23 +36,23 @@ fi
 
 shutdown()
 {
-	airmon-ng stop $mon0
+	airmon-ng stop $mon0 >/dev/null 2>1
 	# NOTE: The above command terminates all processes (tcpdump, etc) using the $mon0 interface,
 	#       so no need to kill them "individually" once the above command is issued.
-	ifconfig $wifiIfName up
+	ifconfig $wifiIfName up >/dev/null 2>1
 }
 
 trap "shutdown;exit 0" 0 1 2 3 6 12 15
 
 
-airmon-ng start ${wifiIfName}
+airmon-ng start ${wifiIfName} >/dev/null 2>1
 
-ifconfig $mon0 promisc
-dumpcap -I -c 4 -i $mon0
+ifconfig $mon0 promisc >/dev/null 2>1
+##dumpcap -I -c 4 -i $mon0
 
 ## CHANGE FREQUENCY TO THE CHOSEN ONE -
-iwconfig ${wifiIfName} channel $channel
-iwconfig ${mon0} channel $channel
+iwconfig ${wifiIfName} channel $channel >/dev/null 2>1
+iwconfig ${mon0} channel $channel >/dev/null 2>1
 result=$?
 #echo "DEBUG: Result: $result"
 if [ ""$result"" -ne "0" ]
@@ -61,10 +66,21 @@ then
 fi
 
 
-# Only search for BEACONS, so we can lock on 1 Mb/s transmissions from the AP -
-##tcpdump -i $mon0 -e -s 256 type mgt subtype probe-resp or subtype probe-req | awk '{
-tcpdump -i $mon0 -e -s 256 type mgt subtype beacon and ether host ${AP_MAC} | awk '{
+# TO-DO: Execute pan/tilt position directive - e.g. goto az el
+el=10
+az=0
 
+for az in -90 -80 -70 -60 -50 -40 -30 -20 -10 0 10 20 30 40 50 60 70 80 90
+do
+
+    cmd="python goto.py $az $el >/dev/null"
+    eval $cmd
+
+
+    # Only search for BEACONS, so we can lock on 1 Mb/s transmissions from the AP -
+    tcpdump -i $mon0 -c 10 -e -s 256 type mgt subtype beacon and ether host ${AP_MAC} 2>/dev/null | awk -v AZ=$az -v EL=$el 'BEGIN {
+	num=0
+}{
 
 ##printf("\nDEBUG: [[%s]]\n",$0);
 
@@ -101,18 +117,54 @@ if ((NF > 22) && ($18 == "Beacon")) {
 	if ($4 == "5805") CH="CH 161"
 	if ($4 == "5825") CH="CH 165"
 
-	printf("%s,%s,%s,,%s,", $1,CH,$7,$11);
-	for (i=19;i <= NF;i++) {
-		printf("%s",$i)
-		if ($i ~/\)$/) break;
-		else printf(" ")
-	}
-	printf("\n");
+	dbm=substr($7,1,length($7)-3)
+	num++
+	vals[num] = 0 + dbm
+	##printf("%s,%s,%s,%s,", $1,CH,dbm,$11);
+	##for (i=19;i <= NF;i++) {
+	##	printf("%s",$i)
+	##	if ($i ~/\)$/) break;
+	##	else printf(" ")
+	##}
+	##printf("\n");
 };
+
+} END {
+
+    avg=-999
+    if (num > 0) {
+	tot=0
+	# Add up all dbm values
+	for (ii=1;ii <= num;ii++) {
+		tot = tot + vals[ii]
+	}
+	# Compute average of all dbm values
+	avg = tot / num
+    }
+    printf("%0.1f,%d,%d\n",avg,AZ,EL)
 
 }'
 
+done | sort -n | tail -1 | awk -F"," '{
+
+	dbm=$1
+	az=$2
+	el=$3
+
+	printf("Best direction: dbm=%.1f  az=%d  el=%d\n",dbm,az,el)
+	cmd = "python goto.py " az " " el " >/dev/null 2>1"
+	system(cmd)
+}'
+
 exit 0
+
+-68.8,90,35
+-67.8,45,35
+-65.0,0,35
+-62.8,-90,35
+-58.4,-45,35
+
+
 
 
     $1          $2   #3   $4  $5  $6    $7     $8    $9   $10        $11              $12  $13        $14             $15             $16   $17      $18     $19 - $(??)
