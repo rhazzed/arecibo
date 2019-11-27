@@ -6,15 +6,11 @@ Buy a waveshare pan/tilt Pi Hat
 Buy a directional antenna for 2.4 and 5 GHz WiFi, and mount it to your pan/tilt mount (pictures to follow...)
 
 Install all of the following dependencies onto your Raspberry Pi -
-aircrack-ng
-pciutils
-tshark
-tcputils
-tcpdump
-Adafruit_Python_PCA9685
-wireshark (optional)
+    sudo apt-get install aircrack-ng pciutils tshark tcputils tcpdump Adafruit_Python_PCA9685
+    sudo apt-get install wireshark (this one is optional)
 
-Clone this github repository (arecibo)
+Clone this github repository (arecibo) -
+    git clone https://github.com/rhazzed/arecibo
 
 Add a Panda 2.4/5 GHz WiFi adapter to your Pi
 
