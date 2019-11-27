@@ -1,0 +1,122 @@
+#!/bin/sh
+##############################################
+# doit - A test to combine WiFi sniffing and pan/tilt movement
+##############################################
+
+wifiIfName=`iwconfig 2>&1 | grep "IEEE 802.11" | grep "ESSID:off.any" | tail -1 | awk '{ print $1 }'`
+
+# TO-DO: Pickup channel number from the command-line
+channel=8
+AP_MAC="b0:39:56:17:88:20"	# F---A--o
+#channel=1 # A few different SSIDs with spaces
+#AP_MAC="34:db:9c:6d:d8:8e"	# (MySpectrumWiFi88-2G)
+
+
+if [ -n ""$wifiIfName"" ]
+then
+	echo
+	# So far, mon0 always winds up being the interface name + "mon" tacked on the end
+	mon0="${wifiIfName}mon"
+	echo "Using adapters ${wifiIfName} and ${mon0}..."
+else
+	echo
+	echo "NO suitable (and/or unassociated) WiFi adapter found."
+	echo "Exiting."
+	echo
+	exit 2
+fi
+
+
+
+
+shutdown()
+{
+	airmon-ng stop $mon0
+	# NOTE: The above command terminates all processes (tcpdump, etc) using the $mon0 interface,
+	#       so no need to kill them "individually" once the above command is issued.
+	ifconfig $wifiIfName up
+}
+
+trap "shutdown;exit 0" 0 1 2 3 6 12 15
+
+
+airmon-ng start ${wifiIfName}
+
+ifconfig $mon0 promisc
+dumpcap -I -c 4 -i $mon0
+
+## CHANGE FREQUENCY TO THE CHOSEN ONE -
+iwconfig ${wifiIfName} channel $channel
+iwconfig ${mon0} channel $channel
+result=$?
+#echo "DEBUG: Result: $result"
+if [ ""$result"" -ne "0" ]
+then
+	echo "*** FAILURE moving ${wifiIfName} to channel ${channel} ***"
+	if [ ""$channel"" -gt 14 ]
+	then
+		echo "                (Is ${wifiIfName} even capable of moving to 5GHz channel ${channel}?)"
+	fi
+	exit 0
+fi
+
+
+# Only search for BEACONS, so we can lock on 1 Mb/s transmissions from the AP -
+##tcpdump -i $mon0 -e -s 256 type mgt subtype probe-resp or subtype probe-req | awk '{
+tcpdump -i $mon0 -e -s 256 type mgt subtype beacon and ether host ${AP_MAC} | awk '{
+
+
+##printf("\nDEBUG: [[%s]]\n",$0);
+
+if ((NF > 22) && ($18 == "Beacon")) {
+
+	CH=$4" "$5
+	# 2.4 GHz -
+	if ($4 == "2412") CH="CH 1"
+	if ($4 == "2417") CH="CH 2"
+	if ($4 == "2422") CH="CH 3"
+	if ($4 == "2427") CH="CH 4"
+	if ($4 == "2432") CH="CH 5"
+	if ($4 == "2437") CH="CH 6"
+	if ($4 == "2442") CH="CH 7"
+	if ($4 == "2447") CH="CH 8"
+	if ($4 == "2452") CH="CH 9"
+	if ($4 == "2457") CH="CH 10"
+	if ($4 == "2462") CH="CH 11"
+
+	# 5 GHz -
+	if ($4 == "5180") CH="CH 36"
+	if ($4 == "5190") CH="CH 38"
+	if ($4 == "5200") CH="CH 40"
+	if ($4 == "5210") CH="CH 42"
+	if ($4 == "5220") CH="CH 44"
+	if ($4 == "5230") CH="CH 46"
+	if ($4 == "5240") CH="CH 48"
+	if ($4 == "5745") CH="CH 149"
+	if ($4 == "5755") CH="CH 151"
+	if ($4 == "5765") CH="CH 153"
+	if ($4 == "5775") CH="CH 155"
+	if ($4 == "5785") CH="CH 157"
+	if ($4 == "5795") CH="CH 159"
+	if ($4 == "5805") CH="CH 161"
+	if ($4 == "5825") CH="CH 165"
+
+	printf("%s,%s,%s,,%s,", $1,CH,$7,$11);
+	for (i=19;i <= NF;i++) {
+		printf("%s",$i)
+		if ($i ~/\)$/) break;
+		else printf(" ")
+	}
+	printf("\n");
+};
+
+}'
+
+exit 0
+
+
+    $1          $2   #3   $4  $5  $6    $7     $8    $9   $10        $11              $12  $13        $14             $15             $16   $17      $18     $19 - $(??)
+20:19:48.003507 1.0 Mb/s 2427 MHz 11b -38dBm signal antenna 1 BSSID:aa:bb:cc:11:22:33 (oui Unknown) DA:Broadcast SA:aa:bb:cc:11:22:33 (oui Unknown) Beacon (sipynet)
+                                                   -4   -3  -2  -1      NF-0
+          [1.0* 2.0* 5.5* 11.0* 6.0 9.0 12.0 18.0 Mbit] ESS CH: 4, PRIVACY[|802.11]
+
