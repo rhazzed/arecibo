@@ -53,12 +53,18 @@ sleep 5
 tcpdump -i $mon0 -w /tt/scan.$$.pcap &
 sleep 5
 
-tcpdump -i $mon0 -e -s 256 type mgt subtype probe-resp or subtype probe-req | awk '{
+
+# Probe for ANY transmitter talking to (or as) the A.P. -
+#tcpdump -i $mon0 -e -s 256 type mgt subtype probe-resp or subtype probe-req | awk '{
+
+# Beacons from A.P.s (nothing from clients) -
+tcpdump -i $mon0 -e -s 256 type mgt subtype beacon | awk '{
 
 
 ##printf("\nDEBUG: [[%s]]\n",$0);
 
-if ((NF > 22) && ($17 == "Request")) {
+##if ((NF > 22) && ($17 == "Request")) {
+if ((NF > 22) && ($18 == "Beacon")) {
 
 	CH=$4" "$5
 	# 2.4 GHz -
@@ -73,6 +79,9 @@ if ((NF > 22) && ($17 == "Request")) {
 	if ($4 == "2452") CH="CH 9"
 	if ($4 == "2457") CH="CH 10"
 	if ($4 == "2462") CH="CH 11"
+	if ($4 == "2467") CH="CH 12"
+	if ($4 == "2472") CH="CH 13 **"
+	if ($4 == "2484") CH="CH 14 **"
 
 	# 5 GHz -
 	if ($4 == "5180") CH="CH 36"
@@ -91,16 +100,13 @@ if ((NF > 22) && ($17 == "Request")) {
 	if ($4 == "5805") CH="CH 161"
 	if ($4 == "5825") CH="CH 165"
 
-	printf("%s,%s,%s,,%s,", $1,CH,$7,$13);
-	for (i=18;i <= NF;i++) {
+	dbm=substr($7,1,length($7)-3)
+	num++
+	vals[num] = 0 + dbm
+	printf("%s,%s,%s,%s,", $1,CH,dbm,$11);
+	for (i=19;i <= NF;i++) {
 		printf("%s",$i)
-		if ($i ~/\)$/) {
-			## Walk remaining fields looking for "CH:", then print the following field and break
-			#for(;i <= NF; i++) {
-			#	if (($i == "CH:") && (i < NF)) printf(" %s %s",$i,$(i+1))
-			#}
-			break;
-		}
+		if ($i ~/\)$/) break;
 		else printf(" ")
 	}
 	printf("\n");

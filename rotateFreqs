@@ -12,7 +12,7 @@ do
     # 2.4 GHz Channel Numbers - 1 2 3 4 5 6 7 8 9 10 11 12 13
     # 5 GHz Channel Numbers (LO)  - 36 38 40 42 44 46 48
     # 5 GHz Channel Numbers (HI)  - 149 151 153 155 157 159 161
-    for channel in 1 2 3 4 5 6 7 8 9 10 11 12 13
+    for channel in 1 2 3 4 5 6 7 8 9 10 11 12 13 36 38 40 42 44 46 48 149 151 153 155 157 159 161
     do
         iwconfig ${wifiIfName} channel $channel
 	result=$?
