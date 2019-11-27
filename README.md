@@ -8,17 +8,19 @@ Buy a directional antenna for 2.4 and 5 GHz WiFi, and mount it to your pan/tilt 
 Install all of the following dependencies onto your Raspberry Pi -
 aircrack-ng
 pciutils
-wireshark
 tshark
-tcpduils
+tcputils
 tcpdump
 Adafruit_Python_PCA9685
+wireshark (optional)
 
 Clone this github repository (arecibo)
 
 Add a Panda 2.4/5 GHz WiFi adapter to your Pi
 
-Stop Raspbian from trying to manage that Panda adapter by adding this to the end of /etc/dhcpcd.conf -
+Attach your directional WiFi antenna to one connector on the Panda adapter, and add a 50-ohm termination to the other Panda connector
+
+Stop Raspbian from trying to manage the Panda WiFi adapter by adding this to the end of /etc/dhcpcd.conf -
 
     denyinterfaces wlan1
 
