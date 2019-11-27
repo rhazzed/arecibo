@@ -30,10 +30,15 @@ Symbolically link your version of setup.conf.(whatever) to setup.conf like this 
 
     ln -s setup.conf.(whatever) setup.conf
 
-Edit "doit" to tell it what WiFi channel (1-13 on 2.4 GHz, 36-161 on 5 GHz) and A.P. MAC address you want to search for
-(Look for the "TO-DO:" lines near the top of the file)
+Run the doScan tool to identify the WiFi channel number and BSSID (MAC address) of the A.P. you want to locate -
 
-Run the "doit" script as root via -
+    sudo ./doScan
+
+Edit "doit" to tell it what WiFi channel and A.P. BSSID (MAC) address you want to locate
+(HINT: Look for the "TO-DO:" lines near the top of the file)
+
+
+Run "doit" as root via -
 
     sudo ./doit
 
