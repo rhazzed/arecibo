@@ -11,12 +11,17 @@
 wifiIfName=`iwconfig 2>&1 | grep "IEEE 802.11" | grep "ESSID:off.any" | tail -1 | awk '{ print $1 }'`
 
 # TO-DO: Pickup channel number from the command-line
-channel=8
+#channel=8
 # TO-DO: Pickup AP MAC address from "somewhere" (tcpdump or the command-line?)
-AP_MAC="b0:39:56:17:88:20"	# F---A--o
+#AP_MAC="b0:39:56:17:88:20"	# F---A--o
 
 #channel=1 # A few different SSIDs with spaces
 #AP_MAC="34:db:9c:6d:d8:8e"	# (MySpectrumWiFi88-2G)
+#channel=5
+#AP_MAC="00:0e:8f:84:47:8c"	# iHub_........
+
+channel=6
+AP_MAC="94:91:7f:e1:89:dd"	# (MySpectrumWiFidf-2G)
 
 
 if [ -n ""$wifiIfName"" ]
@@ -80,7 +85,7 @@ do
 
 
     # Only search for BEACONS, so we can lock on 1 Mb/s transmissions from the AP -
-    tcpdump -i $mon0 -c 10 -e -s 256 type mgt subtype beacon and ether host ${AP_MAC} 2>/dev/null | awk -v AZ=$az -v EL=$el 'BEGIN {
+    tcpdump -i $mon0 -c 10 -e -s 256 type mgt subtype beacon and ether host ${AP_MAC} 2>/dev/null | awk -v AZ=$az -v EL=$el -v CH=$channel -v MAC=$AP_MAC 'BEGIN {
 	num=0
 }{
 
@@ -147,13 +152,13 @@ if ((NF > 22) && ($18 == "Beacon")) {
 
 }'
 
-done | sort -n | tail -1 | awk -F"," '{
+done | sort -n | tail -1 | awk -v CH=$channel -v MAC=$AP_MAC -F"," '{
 
 	dbm=$1
 	az=$2
 	el=$3
 
-	printf("Best direction: dbm=%.1f  az=%d  el=%d\n",dbm,az,el)
+	printf("\nBest direction for %s on CH %d: dbm=%.1f  az=%d  el=%d\n",MAC,CH,dbm,az,el)
 	cmd = "python goto.py " az " " el " >/dev/null 2>&1"
 	system(cmd)
 }'
