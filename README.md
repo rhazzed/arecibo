@@ -1,5 +1,6 @@
 # arecibo
-Autonomous Signal Tracker
+Autonomous Signal Tracker HOW-TO
+=====================================
 
 Buy a waveshare pan/tilt Pi Hat
 
