@@ -36,23 +36,23 @@ fi
 
 shutdown()
 {
-	airmon-ng stop $mon0 >/dev/null 2>1
+	airmon-ng stop $mon0 >/dev/null 2>&1
 	# NOTE: The above command terminates all processes (tcpdump, etc) using the $mon0 interface,
 	#       so no need to kill them "individually" once the above command is issued.
-	ifconfig $wifiIfName up >/dev/null 2>1
+	ifconfig $wifiIfName up >/dev/null 2>&1
 }
 
 trap "shutdown;exit 0" 0 1 2 3 6 12 15
 
 
-airmon-ng start ${wifiIfName} >/dev/null 2>1
+airmon-ng start ${wifiIfName} >/dev/null 2>&1
 
-ifconfig $mon0 promisc >/dev/null 2>1
+ifconfig $mon0 promisc >/dev/null 2>&1
 ##dumpcap -I -c 4 -i $mon0
 
 ## CHANGE FREQUENCY TO THE CHOSEN ONE -
-iwconfig ${wifiIfName} channel $channel >/dev/null 2>1
-iwconfig ${mon0} channel $channel >/dev/null 2>1
+iwconfig ${wifiIfName} channel $channel >/dev/null 2>&1
+iwconfig ${mon0} channel $channel >/dev/null 2>&1
 result=$?
 #echo "DEBUG: Result: $result"
 if [ ""$result"" -ne "0" ]
@@ -152,17 +152,20 @@ done | sort -n | tail -1 | awk -F"," '{
 	el=$3
 
 	printf("Best direction: dbm=%.1f  az=%d  el=%d\n",dbm,az,el)
-	cmd = "python goto.py " az " " el " >/dev/null 2>1"
+	cmd = "python goto.py " az " " el " >/dev/null 2>&1"
 	system(cmd)
 }'
 
 exit 0
 
+
+OUTPUT OF FIRST awk COMMAND (after "sort -n"), WHICH FEEDS INTO ("tail -1", then) SECOND awk COMMAND) -
+(dbm,az,el)
 -68.8,90,35
 -67.8,45,35
 -65.0,0,35
 -62.8,-90,35
--58.4,-45,35
+-58.4,-45,35	<<=== THIS IS STRONGEST SIGNAL
 
 
 
