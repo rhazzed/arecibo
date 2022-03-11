@@ -6,11 +6,12 @@ Buy a waveshare pan/tilt Pi Hat
 
 Buy a directional antenna for 2.4 and 5 GHz WiFi, and mount it to your pan/tilt mount (pictures to follow...)
 A very cheap, but workable antenna like this can be used -
-    https://www.amazon.com/gp/product/B07SND1M93
-    https://www.amazon.com/gp/product/B0781FHTT1
-    https://www.banggood.com/1_35GHz-9_5GHz-UWB-Ultra-Wideband-Log-Periodic-Antenna-reviews-p1167608.html
-    https://www.aliexpress.com/i/32815962974.html
-    https://www.ebay.com/sch/i.html?_nkw=1.35GHz-9.5GHz+15W+UWB+Ultra+Wideband+Log+Periodic+Antenna+SMA+Connector
+
+https://www.amazon.com/gp/product/B07SND1M93
+https://www.amazon.com/gp/product/B0781FHTT1
+https://www.banggood.com/1_35GHz-9_5GHz-UWB-Ultra-Wideband-Log-Periodic-Antenna-reviews-p1167608.html
+https://www.aliexpress.com/i/32815962974.html
+https://www.ebay.com/sch/i.html?_nkw=1.35GHz-9.5GHz+15W+UWB+Ultra+Wideband+Log+Periodic+Antenna+SMA+Connector
     
 
 Install all of the following dependencies onto your Raspberry Pi -
