@@ -32,6 +32,10 @@ remove the second antenna (not perfect) or add a 50-ohm termination to the other
 second antenna, even if you don't terminate it.  (I bought a short SMA cable and a few SMA-to-RP-SMA adapters to connect the
 antenna to the dongle.)
 
+50 ohm SMA Male terminators -
+
+* https://www.amazon.com/dp/B08CHFBTZ8
+
 Stop Raspbian from trying to manage the Panda WiFi adapter by adding this to the end of /etc/dhcpcd.conf -
 
     denyinterfaces wlan1
