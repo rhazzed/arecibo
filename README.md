@@ -61,4 +61,4 @@ Run "doit" as root via -
 
     sudo ./doit
 
-Watch your pan/tilt assembly search for the give WiFi AP and point at it when it's done searching
+Watch your pan/tilt assembly search for the given WiFi AP and point at it when it's done searching
