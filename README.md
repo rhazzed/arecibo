@@ -4,7 +4,13 @@ Autonomous Signal Tracker HOW-TO
 
 Buy a waveshare pan/tilt Pi Hat
 
-Buy a directional antenna for 2.4 and 5 GHz WiFi, and mount it to your pan/tilt mount (pictures to follow...)
+Buy a directional antenna for 2.4 and 5 GHz WiFi, and mount it to your pan/tilt mount.
+
+![PanTiltMounted_LP_WiFi_Antenna 01 smaller](https://user-images.githubusercontent.com/13158671/158280604-ba343b2a-2854-4ae2-adbb-0ef0e4d30edf.jpg)![PanTiltMounted_LP_WiFi_Antenna 02 smaller](https://user-images.githubusercontent.com/13158671/158280634-b0b59326-3ed8-4e03-8baf-dddee6ff7398.jpg)
+
+(A wood dowel, hot glue and some electrical tape were used here.)
+
+
 A very cheap, but workable antenna like this can be used -
 
 * https://www.amazon.com/gp/product/B07SND1M93
