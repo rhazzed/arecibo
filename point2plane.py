@@ -171,7 +171,7 @@ print()
 
 # FOR NOW - Hard-code Alt1
 #qth = wgs84.latlon(34.4927891,-117.4076859, elevation_m=0)
-qth = wgs84.latlon(qth_lat,qth_lon, elevation_m=(qth_alt/3.3))
+qth = wgs84.latlon(qth_lat,qth_lon, elevation_m=(qth_alt*0.3048))
 
 # Plane latitude is argument[1]
 p_lat=float(sys.argv[1])
@@ -182,7 +182,7 @@ p_alt=float(sys.argv[3])
 
 
 # FOR NOW - Hard-code Alt1
-plane = wgs84.latlon(p_lat, p_lon, elevation_m=(int(float(p_alt)/3.3)))
+plane = wgs84.latlon(p_lat, p_lon, elevation_m=(int(float(p_alt)*0.3048)))
 
 difference = plane - qth
 
