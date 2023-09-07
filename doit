@@ -11,17 +11,9 @@
 wifiIfName=`iwconfig 2>&1 | grep "IEEE 802.11" | grep "ESSID:off.any" | tail -1 | awk '{ print $1 }'`
 
 # TO-DO: Pickup channel number from the command-line
-#channel=8
+channel=8
 # TO-DO: Pickup AP MAC address from "somewhere" (tcpdump or the command-line?)
-#AP_MAC="b0:39:56:17:88:20"	# F---A--o
-
-#channel=1 # A few different SSIDs with spaces
-#AP_MAC="34:db:9c:6d:d8:8e"	# (MySpectrumWiFi88-2G)
-#channel=5
-#AP_MAC="00:0e:8f:84:47:8c"	# iHub_........
-
-channel=6
-AP_MAC="94:91:7f:e1:89:dd"	# (MySpectrumWiFidf-2G)
+AP_MAC="de:ad:b3:3f:12:34"	# F---A--o
 
 
 if [ -n ""$wifiIfName"" ]
@@ -37,8 +29,6 @@ else
 	echo
 	exit 2
 fi
-
-
 
 
 shutdown()
