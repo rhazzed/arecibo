@@ -4,10 +4,10 @@
 #
 # HISTORICAL INFORMATION -
 #
-#  2022-03-07  KA9CQL msipin  Created from the current version of satdist.py
-#  2022-03-08  KA9CQL msipin  Added satellite's current direction (rising/falling)
-#                             Added display of next pass
-#  2022-03-10  KA9CQL msipin  Display next-event time as 1st output field on the line to allow sorting by next event
+#  2022-03-07  msipin  Created from the current version of satdist.py
+#  2022-03-08  msipin  Added satellite's current direction (rising/falling)
+#                      Added display of next pass
+#  2022-03-10  msipin  Display next-event time as 1st output field on the line to allow sorting by next event
 ######################################################
 # You need to install this Python3 library -
 #       sudo pip3 install skyfield
