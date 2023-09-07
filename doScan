@@ -130,29 +130,3 @@ if ((NF > 22) && ($21 == "Response")) {
 }'
 
 exit 0
-
-
-   $1           $2  $3    $4  $5   $6  $7    $8      $9   $10      $11          $12         $13               
-23:25:58.487281 1.0 Mb/s 2432 MHz 11b -88dB signal antenna 1 BSSID:Broadcast DA:Broadcast SA:00:1e:8f:60:58:d5
- $14   $15     $16    $17     $18
-(oui Unknown) Probe Request (KPQT2) [1.0 2.0 5.5 11.0 6.0 9.0 12.0 18.0 Mbit]
-
-
-
-   $1           $2  $3    $4  $5   $6  $7    $8      $9   $10       $11              $12   $13      $14
-23:25:57.785455 6.0 Mb/s 5765 MHz 11a -84dB signal antenna 1 BSSID:b0:7f:b9:96:53:40 (oui Unknown) DA:54:60:09:98:03:62
- $15  $16        $17                $18   $19     $20    $21        $22-$(22+x)
-(oui Unknown) SA:b0:7f:b9:96:53:40 (oui Unknown) Probe Response (MySpectrumWiFi42-5G) [6.0* 9.0 12.0* 18.0 24.0* 36.0 48.0 54.0 Mbit], PRIVACY[|802.11]
-
-
-   $1           $2  $3    $4  $5   $6  $7    $8      $9   $10       $11              $12   $13      $14
-23:26:00.172137 1.0 Mb/s 2412 MHz 11b -88dB signal antenna 1 BSSID:dc:ef:09:e3:3e:95 (oui Unknown) DA:f8:04:2e:3f:69:77
- $15  $16        $17                $18   $19     $20    $21      $22-$(22+x)
-(oui Unknown) SA:dc:ef:09:e3:3e:95 (oui Unknown) Probe Response (NETGEAR44) [1.0* 2.0* 5.5* 11.0* 6.0 9.0 12.0 18.0 Mbit] CH: 1, PRIVACY[|802.11]
-
-
-   $1           $2  $3    $4  $5   $6  $7    $8      $9   $10       $11              $12   $13      $14
-23:26:02.858974 1.0 Mb/s 2462 MHz 11b -76dB signal antenna 1 BSSID:b0:05:94:76:0e:71 (oui Unknown) DA:f8:04:2e:de:c1:f1
- $15  $16        $17                $18   $19     $20    $21        $22-$(22+x)
-(oui Unknown) SA:b0:05:94:76:0e:71 (oui Unknown) Probe Response (PS4-16B523BF60B9) [1.0* 2.0* 5.5* 11.0* 6.0 9.0 12.0 18.0 Mbit] CH: 11, PRIVACY
-
