@@ -4,10 +4,10 @@
 #
 # HISTORICAL INFORMATION -
 #
-#  2022-02-27  KA9CQL msipin  Created from the current version of gsdist.py
-#  2022-03-03  KA9CQL msipin  Initialized times using skyfield datatype, rather than Unix datetimes.
-#  2022-03-07  KA9CQL msipin  If user specified a lower minimum "workable" elevation than our first-pass orbit-check
-#                             elevation, use their value on first-pass oribit checks.
+#  2022-02-27  msipin  Created from the current version of gsdist.py
+#  2022-03-03  msipin  Initialized times using skyfield datatype, rather than Unix datetimes.
+#  2022-03-07  msipin  If user specified a lower minimum "workable" elevation than our first-pass orbit-check
+#                      elevation, use their value on first-pass oribit checks.
 ######################################################
 # You need to install this Python3 library -
 #       sudo pip3 install skyfield
